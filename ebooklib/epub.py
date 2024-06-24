@@ -97,7 +97,7 @@ IMAGE_MEDIA_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/svg+xml"]
 
 
 class Section(object):
-    def __init__(self, title, href=""):
+    def __init__(self, title: str, href: str = ""):
         self.title = title
         self.href = href
 
