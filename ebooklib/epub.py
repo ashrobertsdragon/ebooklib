@@ -21,6 +21,7 @@ import warnings
 import posixpath as zip_path
 import os.path
 from collections import OrderedDict
+from typing import Optional
 
 try:
     from urllib.parse import unquote
@@ -103,7 +104,7 @@ class Section(object):
 
 
 class Link(object):
-    def __init__(self, href, title, uid=None):
+    def __init__(self, href: str, title: str, uid: Optional[str] = None):
         self.href = href
         self.title = title
         self.uid = uid
