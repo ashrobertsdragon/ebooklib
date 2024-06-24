@@ -176,9 +176,10 @@ class EpubItem(object):
         """
         return self.file_name
 
-    def get_type(self):
+    def get_type(self) -> int:
         """
-        Guess type according to the file extension. Might not be the best way how to do it, but it works for now.
+        Guess type according to the file extension. Might not be the best way
+        how to do it, but it works for now.
 
         Items can be of type:
           - ITEM_UNKNOWN = 0
@@ -193,15 +194,16 @@ class EpubItem(object):
           - ITEM_DOCUMENT = 9
           - ITEM_COVER = 10
 
-        We map type according to the extensions which are defined in ebooklib.EXTENSIONS.
+        We map type according to the extensions which are defined in
+        ebooklib.EXTENSIONS.
 
         :Returns:
           Returns type of the item as number.
         """
-        _, ext = zip_path.splitext(self.get_name())
-        ext = ext.lower()
+        _, ext = os.path.splitext(self.get_name())
+        ext: str = ext.lower()
 
-        for uid, ext_list in iteritems(ebooklib.EXTENSIONS):
+        for uid, ext_list in ebooklib.EXTENSIONS.items():
             if ext in ext_list:
                 return uid
 
