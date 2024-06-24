@@ -316,7 +316,7 @@ class EpubHtml(EpubItem):
     def get_language(self):
         """
         Get language code for this book item. Language of the book item can be different from
-        the language settings defined globaly for book.
+        the language settings defined globally for book.
 
         :Returns:
           As string returns language code.
@@ -325,7 +325,7 @@ class EpubHtml(EpubItem):
 
     def add_link(self, **kwgs):
         """
-        Add additional link to the document. Links will be embeded only inside of this document.
+        Add additional link to the document. Links will be embedded only inside of this document.
 
         >>> add_link(href='styles.css', rel='stylesheet', type='text/css')
         """
