@@ -98,13 +98,15 @@ IMAGE_MEDIA_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/svg+xml"]
 
 
 class Section(object):
-    def __init__(self, title: str, href: str = ""):
+    def __init__(self, title: str, href: str = "") -> None:
         self.title = title
         self.href = href
 
 
 class Link(object):
-    def __init__(self, href: str, title: str, uid: Optional[int] = None):
+    def __init__(
+        self, href: str, title: str, uid: Optional[int] = None
+    ) -> None:
         self.href = href
         self.title = title
         self.uid = uid
@@ -114,11 +116,11 @@ class Link(object):
 
 
 class EpubException(Exception):
-    def __init__(self, code: int, msg: str):
+    def __init__(self, code: int, msg: str) -> None:
         self.code = code
         self.msg = msg
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self.msg)
 
 
@@ -137,7 +139,7 @@ class EpubItem(object):
         media_type: str = "",
         content: bytes = b(""),
         manifest: bool = True,
-    ):
+    ) -> None:
         """
         :Args:
           - uid: Unique identifier for this item (optional)
@@ -155,7 +157,7 @@ class EpubItem(object):
 
         self.book: Optional[EpubBook] = None
 
-    def get_id(self):
+    def get_id(self) -> Optional[int]:
         """
         Returns unique identifier for this item.
 
@@ -164,9 +166,10 @@ class EpubItem(object):
         """
         return self.id
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
-        Returns name for this item. By default it is always file name but it does not have to be.
+        Returns name for this item. By default it is always file name but it
+        does not have to be.
 
         :Returns:
           Returns file name for this item.
