@@ -104,7 +104,7 @@ class Section(object):
 
 
 class Link(object):
-    def __init__(self, href: str, title: str, uid: Optional[str] = None):
+    def __init__(self, href: str, title: str, uid: Optional[int] = None):
         self.href = href
         self.title = title
         self.uid = uid
@@ -132,11 +132,11 @@ class EpubItem(object):
 
     def __init__(
         self,
-        uid=None,
-        file_name="",
-        media_type="",
-        content=b(""),
-        manifest=True,
+        uid: Optional[int] = None,
+        file_name: str = "",
+        media_type: str = "",
+        content: bytes = b(""),
+        manifest: bool = True,
     ):
         """
         :Args:
@@ -153,7 +153,7 @@ class EpubItem(object):
         self.is_linear = True
         self.manifest = manifest
 
-        self.book = None
+        self.book: Optional[EpubBook] = None
 
     def get_id(self):
         """
