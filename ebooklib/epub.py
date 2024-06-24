@@ -114,7 +114,7 @@ class Link(object):
 
 
 class EpubException(Exception):
-    def __init__(self, code, msg):
+    def __init__(self, code: int, msg: str):
         self.code = code
         self.msg = msg
 
