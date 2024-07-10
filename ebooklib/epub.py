@@ -238,13 +238,13 @@ class EpubItem(object):
 class EpubNcx(EpubItem):
     "Represents Navigation Control File (NCX) in the EPUB."
 
-    def __init__(self, uid="ncx", file_name="toc.ncx"):
+    def __init__(self, uid: str = "ncx", file_name: str = "toc.ncx"):
         super(EpubNcx, self).__init__(
             uid=uid, file_name=file_name, media_type="application/x-dtbncx+xml"
         )
 
     def __str__(self):
-        return "<EpubNcx:%s>" % self.id
+        return f"<EpubNcx:{self.id}>"
 
 
 class EpubCover(EpubItem):
