@@ -209,19 +209,20 @@ class EpubItem(object):
 
         return ebooklib.ITEM_UNKNOWN
 
-    def get_content(self, default=b("")):
+    def get_content(self, default: bytes = b("")):
         """
-        Returns content of the item. Content should be of type 'str' (Python 2) or 'bytes' (Python 3)
+        Returns content of the item. Content should be of type 'bytes'
 
         :Args:
-          - default: Default value for the content if it is not already defined.
+          - default: Default value for the content if it is not already
+          defined.
 
         :Returns:
           Returns content of the item.
         """
         return self.content or default
 
-    def set_content(self, content):
+    def set_content(self, content: bytes):
         """
         Sets content value for this item.
 
@@ -231,7 +232,7 @@ class EpubItem(object):
         self.content = content
 
     def __str__(self):
-        return "<EpubItem:%s>" % self.id
+        return f"<EpubItem:{self.id}>"
 
 
 class EpubNcx(EpubItem):
