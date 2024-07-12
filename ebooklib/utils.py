@@ -16,6 +16,7 @@
 
 import io
 import mimetypes
+from typing import Optional, Tuple
 
 
 from lxml import etree
@@ -53,7 +54,7 @@ def parse_html_string(s: str) -> ElementTree:
     return html_tree
 
 
-def guess_type(extension):
+def guess_type(extension: str) -> Tuple[Optional[str], Optional[str]]:
     global mimetype_initialised
 
     if not mimetype_initialised:
