@@ -19,6 +19,7 @@ import mimetypes
 
 
 from lxml import etree
+from lxml import html
 from lxml.etree import ParserError
 from lxml.etree import _ElementTree as ElementTree
 
@@ -44,12 +45,10 @@ def parse_string(s: str) -> ElementTree:
     return tree
 
 
-def parse_html_string(s):
-    from lxml import html
-
+def parse_html_string(s: str) -> ElementTree:
     utf8_parser = html.HTMLParser(encoding="utf-8")
 
-    html_tree = html.document_fromstring(s, parser=utf8_parser)
+    html_tree: ElementTree = html.document_fromstring(s, parser=utf8_parser)
 
     return html_tree
 
