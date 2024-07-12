@@ -17,8 +17,10 @@
 import io
 import mimetypes
 
-from lxml import etree
 
+from lxml import etree
+from lxml.etree import ParserError
+from lxml.etree import _ElementTree as ElementTree
 
 mimetype_initialised = False
 
@@ -30,12 +32,14 @@ def debug(obj):
     pp.pprint(obj)
 
 
-def parse_string(s):
+def parse_string(s: str) -> ElementTree:
     parser = etree.XMLParser(recover=True, resolve_entities=False)
     try:
-        tree = etree.parse(io.BytesIO(s.encode('utf-8')) , parser=parser)
-    except:
-        tree = etree.parse(io.BytesIO(s) , parser=parser)
+        tree: ElementTree = etree.fromstring(
+            io.BytesIO(s.encode("utf-8")), parser=parser
+        )
+    except ParserError:
+        tree = etree.fromstring(io.BytesIO(s), parser=parser)
 
     return tree
 
@@ -43,47 +47,49 @@ def parse_string(s):
 def parse_html_string(s):
     from lxml import html
 
-    utf8_parser = html.HTMLParser(encoding='utf-8')
+    utf8_parser = html.HTMLParser(encoding="utf-8")
 
     html_tree = html.document_fromstring(s, parser=utf8_parser)
 
     return html_tree
 
 
-def guess_type(extenstion):
+def guess_type(extension):
     global mimetype_initialised
 
     if not mimetype_initialised:
         mimetypes.init()
-        mimetypes.add_type('application/xhtml+xml', '.xhtml')
+        mimetypes.add_type("application/xhtml+xml", ".xhtml")
         mimetype_initialised = True
 
-    return mimetypes.guess_type(extenstion)
+    return mimetypes.guess_type(extension)
 
 
 def create_pagebreak(pageref, label=None, html=True):
     from ebooklib.epub import NAMESPACES
 
     pageref_attributes = {
-        '{%s}type' % NAMESPACES['EPUB']: 'pagebreak',
-        'title': u'{}'.format(pageref),
-        'id': u'{}'.format(pageref),
-     }
+        "{%s}type" % NAMESPACES["EPUB"]: "pagebreak",
+        "title": "{}".format(pageref),
+        "id": "{}".format(pageref),
+    }
 
-    pageref_elem = etree.Element('span', pageref_attributes, nsmap={'epub': NAMESPACES['EPUB']})
+    pageref_elem = etree.Element(
+        "span", pageref_attributes, nsmap={"epub": NAMESPACES["EPUB"]}
+    )
 
     if label:
         pageref_elem.text = label
 
     if html:
-        return etree.tostring(pageref_elem, encoding='unicode')
+        return etree.tostring(pageref_elem, encoding="unicode")
 
     return pageref_elem
 
 
 def get_headers(elem):
     for n in range(1, 7):
-        headers = elem.xpath('./h{}'.format(n))
+        headers = elem.xpath("./h{}".format(n))
 
         if len(headers) > 0:
             text = headers[0].text_content().strip()
@@ -97,20 +103,24 @@ def get_pages(item):
     pages = []
 
     for elem in body.iter():
-        if 'epub:type' in elem.attrib:
-            if elem.get('id') is not None:
+        if "epub:type" in elem.attrib:
+            if elem.get("id") is not None:
                 _text = None
-                
-                if elem.text is not None and elem.text.strip() != '':
+
+                if elem.text is not None and elem.text.strip() != "":
                     _text = elem.text.strip()
 
                 if _text is None:
-                    _text = elem.get('aria-label')
+                    _text = elem.get("aria-label")
 
                 if _text is None:
                     _text = get_headers(elem)
 
-                pages.append((item.get_name(), elem.get('id'), _text or elem.get('id')))
+                pages.append((
+                    item.get_name(),
+                    elem.get("id"),
+                    _text or elem.get("id"),
+                ))
 
     return pages
 
