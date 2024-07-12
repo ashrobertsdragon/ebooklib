@@ -23,6 +23,8 @@ import os.path
 from collections import OrderedDict
 from typing import Generator, List, Literal, Optional
 
+from lxml.etree import ParserError
+
 try:
     from urllib.parse import unquote
 except ImportError:
@@ -355,7 +357,7 @@ class EpubHtml(EpubItem):
         """
         return (link for link in self.links)
 
-    def get_links_of_type(self, link_type):
+    def get_links_of_type(self, link_type: str) -> Generator[str, None, None]:
         """
         Returns list of additional links of specific type.
 
@@ -366,7 +368,7 @@ class EpubHtml(EpubItem):
             link for link in self.links if link.get("type", "") == link_type
         )
 
-    def add_item(self, item):
+    def add_item(self, item: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]):
         """
         Add other item to this document. It will create additional links
         according to the item type.
@@ -382,18 +384,18 @@ class EpubHtml(EpubItem):
         if item.get_type() == ebooklib.ITEM_SCRIPT:
             self.add_link(src=item.get_name(), type="text/javascript")
 
-    def get_body_content(self):
+    def get_body_content(self) -> bytes:
         """
-        Returns content of BODY element for this HTML document. Content will be of type 'str' (Python 2)
-        or 'bytes' (Python 3).
+        Returns content of BODY element for this HTML document. Content will
+        be of type 'bytes'.
 
         :Returns:
-          Returns content of this document.
+            Returns content of this document.
         """
 
         try:
             html_tree = parse_html_string(self.content)
-        except:
+        except ParserError:
             return ""
 
         html_root = html_tree.getroottree()
