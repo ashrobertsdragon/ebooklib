@@ -21,7 +21,7 @@ import warnings
 import posixpath as zip_path
 import os.path
 from collections import OrderedDict
-from typing import Optional
+from typing import Generator, List, Literal, Optional
 
 try:
     from urllib.parse import unquote
@@ -222,7 +222,7 @@ class EpubItem(object):
         """
         return self.content or default
 
-    def set_content(self, content: bytes):
+    def set_content(self, content: bytes) -> None:
         """
         Sets content value for this item.
 
@@ -252,14 +252,14 @@ class EpubCover(EpubItem):
     Represents Cover image in the EPUB file.
     """
 
-    def __init__(self, uid="cover-img", file_name=""):
+    def __init__(self, uid: str = "cover-img", file_name: str = ""):
         super(EpubCover, self).__init__(uid=uid, file_name=file_name)
 
-    def get_type(self):
+    def get_type(self) -> Literal[10]:
         return ebooklib.ITEM_COVER
 
-    def __str__(self):
-        return "<EpubCover:%s:%s>" % (self.id, self.file_name)
+    def __str__(self) -> str:
+        return f"<EpubCover:{self.id}:{self.file_name}>"
 
 
 class EpubHtml(EpubItem):
@@ -267,17 +267,18 @@ class EpubHtml(EpubItem):
     Represents HTML document in the EPUB file.
     """
 
-    _template_name = "chapter"
+    _template_name: str = "chapter"
 
+    # TODO: figure out what media_overlay and media_duration should be
     def __init__(
         self,
-        uid=None,
-        file_name="",
-        media_type="",
-        content=None,
-        title="",
-        lang=None,
-        direction=None,
+        uid: Optional[int] = None,
+        file_name: str = "",
+        media_type: str = "",
+        content: Optional[bytes] = None,
+        title: str = "",
+        lang: Optional[str] = None,
+        direction: Optional[str] = None,
         media_overlay=None,
         media_duration=None,
     ):
@@ -290,20 +291,21 @@ class EpubHtml(EpubItem):
         self.media_overlay = media_overlay
         self.media_duration = media_duration
 
-        self.links = []
-        self.properties = []
-        self.pages = []
+        self.links: List[str] = []
+        self.properties: List[str] = []
+        self.pages: List[str] = []
 
-    def is_chapter(self):
+    def is_chapter(self) -> bool:
         """
         Returns if this document is chapter or not.
 
         :Returns:
           Returns book value.
         """
+        # TODO: implement this
         return True
 
-    def get_type(self):
+    def get_type(self) -> Literal[9]:
         """
         Always returns ebooklib.ITEM_DOCUMENT as type of this document.
 
@@ -313,35 +315,38 @@ class EpubHtml(EpubItem):
 
         return ebooklib.ITEM_DOCUMENT
 
-    def set_language(self, lang):
+    def set_language(self, lang: str) -> None:
         """
-        Sets language for this book item. By default it will use language of the book but it
-        can be overwritten with this call.
+        Sets language for this book item. By default it will use language of
+        the book but it can be overwritten with this call.
         """
         self.lang = lang
 
-    def get_language(self):
+    def get_language(self) -> str:
         """
-        Get language code for this book item. Language of the book item can be different from
-        the language settings defined globally for book.
+        Get language code for this book item. Language of the book item can be
+        different from the language settings defined globally for book.
 
         :Returns:
           As string returns language code.
         """
         return self.lang
 
-    def add_link(self, **kwgs):
+    def add_link(self, **kwargs) -> None:
         """
-        Add additional link to the document. Links will be embedded only inside of this document.
+        Add additional link to the document. Links will be embedded only
+        inside of this document.
 
         >>> add_link(href='styles.css', rel='stylesheet', type='text/css')
         """
-        self.links.append(kwgs)
-        if kwgs.get("type") == "text/javascript":
+        self.links.append(kwargs)
+        if kwargs.get("type") == "text/javascript":
             if "scripted" not in self.properties:
                 self.properties.append("scripted")
 
-    def get_links(self):
+    def get_links(
+        self,
+    ) -> Generator[str, None, None]:  # -> Generator[Any, None, None]:
         """
         Returns list of additional links defined for this document.
 
@@ -363,7 +368,8 @@ class EpubHtml(EpubItem):
 
     def add_item(self, item):
         """
-        Add other item to this document. It will create additional links according to the item type.
+        Add other item to this document. It will create additional links
+        according to the item type.
 
         :Args:
           - item: item we want to add defined as instance of EpubItem
