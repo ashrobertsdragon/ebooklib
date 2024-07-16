@@ -14,15 +14,20 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with EbookLib.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import annotations
 import io
 import mimetypes
-from typing import Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union, TYPE_CHECKING
 
 
 from lxml import etree
 from lxml import html
 from lxml.etree import ParserError
 from lxml.etree import _ElementTree as ElementTree
+from lxml.etree import _Element as Element
+
+if TYPE_CHECKING:
+    from epub import EpubItem
 
 mimetype_initialised = False
 
@@ -65,16 +70,18 @@ def guess_type(extension: str) -> Tuple[Optional[str], Optional[str]]:
     return mimetypes.guess_type(extension)
 
 
-def create_pagebreak(pageref, label=None, html=True):
+def create_pagebreak(
+    pageref, label: Optional[str] = None, html: bool = True
+) -> Union[bytes, Element]:
     from ebooklib.epub import NAMESPACES
 
-    pageref_attributes = {
+    pageref_attributes: Dict[str, str] = {
         "{%s}type" % NAMESPACES["EPUB"]: "pagebreak",
-        "title": "{}".format(pageref),
-        "id": "{}".format(pageref),
+        "title": f"{pageref}",
+        "id": f"{pageref}",
     }
 
-    pageref_elem = etree.Element(
+    pageref_elem: Element = etree.Element(
         "span", pageref_attributes, nsmap={"epub": NAMESPACES["EPUB"]}
     )
 
@@ -87,9 +94,9 @@ def create_pagebreak(pageref, label=None, html=True):
     return pageref_elem
 
 
-def get_headers(elem):
+def get_headers(elem: Element) -> Optional[str]:
     for n in range(1, 7):
-        headers = elem.xpath("./h{}".format(n))
+        headers = elem.xpath(f"./h{n}")
 
         if len(headers) > 0:
             text = headers[0].text_content().strip()
@@ -98,34 +105,33 @@ def get_headers(elem):
     return None
 
 
-def get_pages(item):
-    body = parse_html_string(item.get_body_content())
-    pages = []
+def get_pages(item: EpubItem) -> list:
+    body: ElementTree = parse_html_string(item.get_body_content())
+    pages: list = []
 
     for elem in body.iter():
-        if "epub:type" in elem.attrib:
-            if elem.get("id") is not None:
-                _text = None
+        if "epub:type" in elem.attrib and elem.get("id") is not None:
+            _text = None
 
-                if elem.text is not None and elem.text.strip() != "":
-                    _text = elem.text.strip()
+            if elem.text is not None and elem.text.strip() != "":
+                _text = elem.text.strip()
 
-                if _text is None:
-                    _text = elem.get("aria-label")
+            if _text is None:
+                _text = elem.get("aria-label")
 
-                if _text is None:
-                    _text = get_headers(elem)
+            if _text is None:
+                _text = get_headers(elem)
 
-                pages.append((
-                    item.get_name(),
-                    elem.get("id"),
-                    _text or elem.get("id"),
-                ))
+            pages.append((
+                item.get_name(),
+                elem.get("id"),
+                _text or elem.get("id"),
+            ))
 
     return pages
 
 
-def get_pages_for_items(items):
-    pages_from_docs = [get_pages(item) for item in items]
+def get_pages_for_items(items: List[EpubItem]) -> list:
+    pages_from_docs: List[list] = [get_pages(item) for item in items]
 
     return [item for pages in pages_from_docs for item in pages]
