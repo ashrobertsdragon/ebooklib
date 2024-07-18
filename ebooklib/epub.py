@@ -24,6 +24,8 @@ from collections import OrderedDict
 from typing import Generator, List, Literal, Optional
 
 from lxml.etree import ParserError
+from lxml.etree import _ElementTree as ElementTree
+from lxml.etree import _Element as Element
 
 try:
     from urllib.parse import unquote
@@ -201,11 +203,14 @@ class EpubItem(object):
         _, ext = os.path.splitext(self.get_name())
         ext: str = ext.lower()
 
-        for uid, ext_list in ebooklib.EXTENSIONS.items():
-            if ext in ext_list:
-                return uid
-
-        return ebooklib.ITEM_UNKNOWN
+        return next(
+            (
+                uid
+                for uid, ext_list in ebooklib.EXTENSIONS.items()
+                if ext in ext_list
+            ),
+            ebooklib.ITEM_UNKNOWN,
+        )
 
     def get_content(self, default: bytes = b""):
         """
@@ -338,20 +343,22 @@ class EpubHtml(EpubItem):
         >>> add_link(href='styles.css', rel='stylesheet', type='text/css')
         """
         self.links.append(kwargs)
-        if kwargs.get("type") == "text/javascript":
-            if "scripted" not in self.properties:
-                self.properties.append("scripted")
+        if (
+            kwargs.get("type") == "text/javascript"
+            and "scripted" not in self.properties
+        ):
+            self.properties.append("scripted")
 
     def get_links(
         self,
-    ) -> Generator[str, None, None]:  # -> Generator[Any, None, None]:
+    ) -> Generator[str, None, None]:
         """
         Returns list of additional links defined for this document.
 
         :Returns:
           As tuple return list of links.
         """
-        return (link for link in self.links)
+        return iter(self.links)
 
     def get_links_of_type(self, link_type: str) -> Generator[str, None, None]:
         """
@@ -390,16 +397,16 @@ class EpubHtml(EpubItem):
         """
 
         try:
-            html_tree = parse_html_string(self.content)
+            html_tree: ElementTree = parse_html_string(self.content)
         except ParserError:
-            return ""
+            return b""
 
-        html_root = html_tree.getroottree()
+        html_root: ElementTree = html_tree.getroottree()
 
         if len(html_root.find("body")) != 0:
             body = html_tree.find("body")
 
-            tree_str = etree.tostring(
+            tree_str: bytes = etree.tostring(
                 body,
                 pretty_print=True,
                 encoding="utf-8",
@@ -414,12 +421,12 @@ class EpubHtml(EpubItem):
 
             return tree_str
 
-        return ""
+        return b""
 
-    def get_content(self, default=None):
+    def get_content(self, default: Optional[bytes] = None) -> bytes:
         """
-        Returns content for this document as HTML string. Content will be of type 'str' (Python 2)
-        or 'bytes' (Python 3).
+        Returns content for this document as HTML string. Content will be of
+        type bytes.
 
         :Args:
           - default: Default value for the content if it is not defined.
@@ -428,7 +435,9 @@ class EpubHtml(EpubItem):
           Returns content of this document.
         """
 
-        tree = parse_string(self.book.get_template(self._template_name))
+        tree: ElementTree = parse_string(
+            self.book.get_template(self._template_name)
+        )
         tree_root = tree.getroot()
 
         tree_root.set("lang", self.lang or self.book.language)
@@ -440,15 +449,13 @@ class EpubHtml(EpubItem):
         #  <meta charset="utf-8" />
 
         try:
-            html_tree = parse_html_string(self.content)
-        except:
-            return ""
-
-        html_root = html_tree.getroottree()
+            html_tree: ElementTree = parse_html_string(self.content)
+        except ParserError:
+            return b""
 
         # create and populate head
 
-        _head = etree.SubElement(tree_root, "head")
+        _head: Element = etree.SubElement(tree_root, "head")
 
         if self.title != "":
             _title = etree.SubElement(_head, "title")
@@ -460,7 +467,7 @@ class EpubHtml(EpubItem):
                 # force <script></script>
                 _lnk.text = ""
             else:
-                _lnk = etree.SubElement(_head, "link", lnk)
+                _lnk: Element = etree.SubElement(_head, "link", lnk)
 
         # this should not be like this
         # head = html_root.find('head')
@@ -472,24 +479,22 @@ class EpubHtml(EpubItem):
 
         # create and populate body
 
-        _body = etree.SubElement(tree_root, "body")
+        _body: Element = etree.SubElement(tree_root, "body")
         if self.direction:
             _body.set("dir", self.direction)
             tree_root.set("dir", self.direction)
 
-        body = html_tree.find("body")
+        body: Element = html_tree.find("body")
         if body is not None:
             for i in body.getchildren():
                 _body.append(i)
 
-        tree_str = etree.tostring(
+        return etree.tostring(
             tree, pretty_print=True, encoding="utf-8", xml_declaration=True
         )
 
-        return tree_str
-
-    def __str__(self):
-        return "<EpubHtml:%s:%s>" % (self.id, self.file_name)
+    def __str__(self) -> str:
+        return f"<EpubHtml:{self.id}:{self.file_name}>"
 
 
 class EpubCoverHtml(EpubHtml):
@@ -541,14 +546,12 @@ class EpubCoverHtml(EpubHtml):
         images[0].set("src", self.image_name)
         images[0].set("alt", self.title)
 
-        tree_str = etree.tostring(
+        return etree.tostring(
             tree, pretty_print=True, encoding="utf-8", xml_declaration=True
         )
 
-        return tree_str
-
     def __str__(self):
-        return "<EpubCoverHtml:%s:%s>" % (self.id, self.file_name)
+        return f"<EpubCoverHtml:{self.id}:{self.file_name}>"
 
 
 class EpubNav(EpubHtml):
@@ -583,7 +586,7 @@ class EpubNav(EpubHtml):
         return False
 
     def __str__(self):
-        return "<EpubNav:%s:%s>" % (self.id, self.file_name)
+        return f"<EpubNav:{self.id}:{self.file_name}>"
 
 
 class EpubImage(EpubItem):
@@ -598,7 +601,7 @@ class EpubImage(EpubItem):
         return ebooklib.ITEM_IMAGE
 
     def __str__(self):
-        return "<EpubImage:%s:%s>" % (self.id, self.file_name)
+        return f"<EpubImage:{self.id}:{self.file_name}>"
 
 
 class EpubSMIL(EpubItem):
@@ -614,7 +617,7 @@ class EpubSMIL(EpubItem):
         return ebooklib.ITEM_SMIL
 
     def __str__(self):
-        return "<EpubSMIL:%s:%s>" % (self.id, self.file_name)
+        return f"<EpubSMIL:{self.id}:{self.file_name}>"
 
 
 # EpubBook
@@ -663,8 +666,7 @@ class EpubBook(object):
             "",
             {
                 "name": "generator",
-                "content": "Ebook-lib %s"
-                % ".".join([str(s) for s in VERSION]),
+                "content": f'Ebook-lib {".".join([str(s) for s in VERSION])}',
             },
         )
 
@@ -877,11 +879,10 @@ class EpubBook(object):
         :Returns:
           Returns item object. Returns None if nothing was found.
         """
-        for item in self.get_items():
-            if item.get_name() == href:
-                return item
-
-        return None
+        return next(
+            (item for item in self.get_items() if item.get_name() == href),
+            None,
+        )
 
     def get_items(self):
         """
@@ -890,7 +891,7 @@ class EpubBook(object):
         :Returns:
           Returns all items as tuple.
         """
-        return (item for item in self.items)
+        return iter(self.items)
 
     def get_items_of_type(self, item_type):
         """
