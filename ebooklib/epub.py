@@ -504,26 +504,26 @@ class EpubCoverHtml(EpubHtml):
 
     def __init__(
         self,
-        uid="cover",
-        file_name="cover.xhtml",
-        image_name="",
-        title="Cover",
+        uid: str = "cover",
+        file_name: str = "cover.xhtml",
+        image_name: str = "",
+        title: str = "Cover",
     ):
         super(EpubCoverHtml, self).__init__(
             uid=uid, file_name=file_name, title=title
         )
 
         self.image_name = image_name
-        self.is_linear = False
+        self.is_linear: bool = False
 
-    def is_chapter(self):
+    def is_chapter(self) -> bool:
         """
         Returns if this document is chapter or not.
 
         :Returns:
           Returns book value.
         """
-
+        # TODO: implement this
         return False
 
     def get_content(self):
