@@ -526,9 +526,10 @@ class EpubCoverHtml(EpubHtml):
         # TODO: implement this
         return False
 
-    def get_content(self):
+    def get_content(self) -> bytes:
         """
-        Returns content for cover page as HTML string. Content will be of type 'str' (Python 2) or 'bytes' (Python 3).
+        Returns content for cover page as HTML string. Content will be of type
+            'bytes'.
 
         :Returns:
           Returns content of this document.
@@ -536,10 +537,12 @@ class EpubCoverHtml(EpubHtml):
 
         self.content = self.book.get_template("cover")
 
-        tree = parse_string(super(EpubCoverHtml, self).get_content())
+        tree: ElementTree = parse_string(
+            super(EpubCoverHtml, self).get_content()
+        )
         tree_root = tree.getroot()
 
-        images = tree_root.xpath(
+        images: list = tree_root.xpath(
             "//xhtml:img", namespaces={"xhtml": NAMESPACES["XHTML"]}
         )
 
@@ -550,7 +553,7 @@ class EpubCoverHtml(EpubHtml):
             tree, pretty_print=True, encoding="utf-8", xml_declaration=True
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<EpubCoverHtml:{self.id}:{self.file_name}>"
 
 
