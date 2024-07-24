@@ -588,7 +588,7 @@ class EpubNav(EpubHtml):
         # TODO: implement this
         return False
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<EpubNav:{self.id}:{self.file_name}>"
 
 
