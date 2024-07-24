@@ -578,14 +578,14 @@ class EpubNav(EpubHtml):
             direction=direction,
         )
 
-    def is_chapter(self):
+    def is_chapter(self) -> bool:
         """
         Returns if this document is chapter or not.
 
         :Returns:
           Returns book value.
         """
-
+        # TODO: implement this
         return False
 
     def __str__(self):
