@@ -564,11 +564,11 @@ class EpubNav(EpubHtml):
 
     def __init__(
         self,
-        uid="nav",
-        file_name="nav.xhtml",
-        media_type="application/xhtml+xml",
-        title="",
-        direction=None,
+        uid: str = "nav",
+        file_name: str = "nav.xhtml",
+        media_type: str = "application/xhtml+xml",
+        title: str = "",
+        direction: str | None = None,
     ):
         super(EpubNav, self).__init__(
             uid=uid,
