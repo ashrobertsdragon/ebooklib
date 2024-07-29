@@ -608,7 +608,12 @@ class EpubImage(EpubItem):
 
 
 class EpubSMIL(EpubItem):
-    def __init__(self, uid=None, file_name="", content=None):
+    def __init__(
+        self,
+        uid: Optional[str] = None,
+        file_name: str = "",
+        content: Optional[bytes] = None,
+    ):
         super(EpubSMIL, self).__init__(
             uid=uid,
             file_name=file_name,
@@ -616,10 +621,10 @@ class EpubSMIL(EpubItem):
             content=content,
         )
 
-    def get_type(self):
+    def get_type(self) -> Literal[11]:
         return ebooklib.ITEM_SMIL
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<EpubSMIL:{self.id}:{self.file_name}>"
 
 
