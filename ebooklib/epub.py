@@ -600,10 +600,10 @@ class EpubImage(EpubItem):
     def __init__(self, *args, **kwargs):
         super(EpubImage, self).__init__(*args, **kwargs)
 
-    def get_type(self):
+    def get_type(self) -> Literal[1]:
         return ebooklib.ITEM_IMAGE
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"<EpubImage:{self.id}:{self.file_name}>"
 
 
