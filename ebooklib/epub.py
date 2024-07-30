@@ -633,7 +633,7 @@ class EpubSMIL(EpubItem):
 
 class EpubBook(object):
     def __init__(self):
-        self.EPUB_VERSION = None
+        self.EPUB_VERSION: None = None  # This makes no sense
 
         self.reset()
 
@@ -642,26 +642,26 @@ class EpubBook(object):
     def reset(self):
         "Initialises all needed variables to default values"
 
-        self.metadata = {}
-        self.items = []
-        self.spine = []
-        self.guide = []
-        self.pages = []
-        self.toc = []
-        self.bindings = []
+        self.metadata: dict = {}
+        self.items: list = []
+        self.spine: list = []
+        self.guide: list = []
+        self.pages: list = []
+        self.toc: list = []
+        self.bindings: list = []
 
-        self.IDENTIFIER_ID = "id"
-        self.FOLDER_NAME = "EPUB"
+        self.IDENTIFIER_ID: str = "id"
+        self.FOLDER_NAME: str = "EPUB"
 
-        self._id_html = 0
-        self._id_image = 0
-        self._id_static = 0
+        self._id_html: int = 0
+        self._id_image: int = 0
+        self._id_static: int = 0
 
-        self.title = ""
-        self.language = "en"
-        self.direction = None
+        self.title: str = ""
+        self.language: str = "en"
+        self.direction: Optional[str] = None
 
-        self.templates = {
+        self.templates: dict[str, bytes] = {
             "ncx": NCX_XML,
             "nav": NAV_XML,
             "chapter": CHAPTER_XML,
@@ -678,12 +678,13 @@ class EpubBook(object):
             },
         )
 
-        # default to using a randomly-unique identifier if one is not specified manually
+        # default to using a randomly-unique identifier if one is not
+        # specified manually
         self.set_identifier(str(uuid.uuid4()))
 
         # custom prefixes and namespaces to be set to the content.opf doc
-        self.prefixes = []
-        self.namespaces = {}
+        self.prefixes: list = []
+        self.namespaces: dict = {}
 
     def set_identifier(self, uid):
         """
