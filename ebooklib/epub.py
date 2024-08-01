@@ -639,7 +639,7 @@ class EpubBook(object):
 
         # we should have options here
 
-    def reset(self):
+    def reset(self) -> None:
         "Initialises all needed variables to default values"
 
         self.metadata: dict = {}
@@ -686,7 +686,7 @@ class EpubBook(object):
         self.prefixes: list = []
         self.namespaces: dict = {}
 
-    def set_identifier(self, uid):
+    def set_identifier(self, uid: str) -> None:
         """
         Sets unique id for this epub
 
@@ -700,7 +700,7 @@ class EpubBook(object):
             "DC", "identifier", self.uid, {"id": self.IDENTIFIER_ID}
         )
 
-    def set_title(self, title):
+    def set_title(self, title: str) -> None:
         """
         Set title. You can set multiple titles.
 
@@ -712,10 +712,10 @@ class EpubBook(object):
 
         self.add_metadata("DC", "title", self.title)
 
-    def set_language(self, lang):
+    def set_language(self, lang: str) -> None:
         """
-        Set language for this epub. You can set multiple languages. Specific items in the book can have
-        different language settings.
+        Set language for this epub. You can set multiple languages. Specific
+        items in the book can have different language settings.
 
         :Args:
           - lang: Language code
@@ -725,7 +725,7 @@ class EpubBook(object):
 
         self.add_metadata("DC", "language", lang)
 
-    def set_direction(self, direction):
+    def set_direction(self, direction: str) -> None:
         """
         :Args:
           - direction: Options are "ltr", "rtl" and "default"
