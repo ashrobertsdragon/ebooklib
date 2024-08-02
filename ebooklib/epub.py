@@ -733,24 +733,27 @@ class EpubBook(object):
 
         self.direction = direction
 
-    def set_cover(self, file_name, content, create_page=True):
+    def set_cover(
+        self, file_name: str, content: bytes, create_page: bool = True
+    ):
         """
         Set cover and create cover document if needed.
 
         :Args:
           - file_name: file name of the cover page
           - content: Content for the cover image
-          - create_page: Should cover page be defined. Defined as bool value (optional). Default value is True.
+          - create_page: Should cover page be defined. Defined as bool value
+          (optional). Default value is True.
         """
 
         # as it is now, it can only be called once
-        c0 = EpubCover(file_name=file_name)
-        c0.content = content
-        self.add_item(c0)
+        cover: EpubCover = EpubCover(file_name=file_name)
+        cover.content = content
+        self.add_item(cover)
 
         if create_page:
-            c1 = EpubCoverHtml(image_name=file_name)
-            self.add_item(c1)
+            cover_html: EpubCoverHtml = EpubCoverHtml(image_name=file_name)
+            self.add_item(cover_html)
 
         self.add_metadata(
             None,
