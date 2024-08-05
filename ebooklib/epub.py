@@ -762,7 +762,13 @@ class EpubBook(object):
             OrderedDict([("name", "cover"), ("content", "cover-img")]),
         )
 
-    def add_author(self, author, file_as=None, role=None, uid="creator"):
+    def add_author(
+        self,
+        author: str,
+        file_as: Optional[str] = None,
+        role: Optional[str] = None,
+        uid: str = "creator",
+    ):
         "Add author for this document"
 
         self.add_metadata("DC", "creator", author, {"id": uid})
@@ -773,7 +779,7 @@ class EpubBook(object):
                 "meta",
                 file_as,
                 {
-                    "refines": "#" + uid,
+                    "refines": f"#{uid}",
                     "property": "file-as",
                     "scheme": "marc:relators",
                 },
@@ -784,7 +790,7 @@ class EpubBook(object):
                 "meta",
                 role,
                 {
-                    "refines": "#" + uid,
+                    "refines": f"#{uid}",
                     "property": "role",
                     "scheme": "marc:relators",
                 },
