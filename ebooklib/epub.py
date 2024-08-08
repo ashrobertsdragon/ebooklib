@@ -796,7 +796,13 @@ class EpubBook(object):
                 },
             )
 
-    def add_metadata(self, namespace, name, value, others=None):
+    def add_metadata(
+        self,
+        namespace: str,
+        name: list,
+        value: str,
+        others: Optional[dict] = None,
+    ) -> None:
         "Add metadata"
 
         if namespace in NAMESPACES:
@@ -810,7 +816,7 @@ class EpubBook(object):
 
         self.metadata[namespace][name].append((value, others))
 
-    def get_metadata(self, namespace, name):
+    def get_metadata(self, namespace: str, name: list) -> list:
         "Retrieve metadata"
 
         if namespace in NAMESPACES:
