@@ -875,7 +875,7 @@ class EpubBook(object):
 
         return item
 
-    def get_item_with_id(self, uid):
+    def get_item_with_id(self, uid: str) -> Optional[EpubItem]:
         """
         Returns item for defined UID.
 
