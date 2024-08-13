@@ -21,7 +21,7 @@ import warnings
 import posixpath as zip_path
 import os.path
 from collections import OrderedDict
-from typing import Generator, List, Literal, Optional
+from typing import Generator, Iterator, List, Literal, Optional
 
 from lxml.etree import ParserError
 from lxml.etree import _ElementTree as ElementTree
@@ -887,13 +887,11 @@ class EpubBook(object):
         :Returns:
           Returns item object. Returns None if nothing was found.
         """
-        for item in self.get_items():
-            if item.id == uid:
-                return item
+        return next(
+            (item for item in self.get_items() if item.id == uid), None
+        )
 
-        return None
-
-    def get_item_with_href(self, href):
+    def get_item_with_href(self, href: str) -> Optional[EpubItem]:
         """
         Returns item for defined HREF.
 
@@ -910,16 +908,18 @@ class EpubBook(object):
             None,
         )
 
-    def get_items(self):
+    def get_items(self) -> Iterator:
         """
         Returns all items attached to this book.
 
         :Returns:
-          Returns all items as tuple.
+          Returns all items as generator.
         """
         return iter(self.items)
 
-    def get_items_of_type(self, item_type):
+    def get_items_of_type(
+        self, item_type: Literal[1, 2, 3, 4, 5, 6, 7, 8, 9]
+    ) -> Generator[EpubItem, None, None]:
         """
         Returns all items of specified type.
 
@@ -933,7 +933,9 @@ class EpubBook(object):
         """
         return (item for item in self.items if item.get_type() == item_type)
 
-    def get_items_of_media_type(self, media_type):
+    def get_items_of_media_type(
+        self, media_type: str
+    ) -> Generator[EpubItem, None, None]:
         """
         Returns all items of specified media type.
 
