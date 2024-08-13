@@ -838,10 +838,10 @@ class EpubBook(object):
         else:
             self.add_metadata(namespace, name, value, others)
 
-    def add_item(self, item):
+    def add_item(self, item: EpubItem) -> EpubItem:
         """
-        Add additional item to the book. If not defined, media type and chapter id will be defined
-        for the item.
+        Add additional item to the book. If not defined, media type and
+        chapter id will be defined for the item.
 
         :Args:
           - item: Item instance
@@ -850,10 +850,9 @@ class EpubBook(object):
             (has_guessed, media_type) = guess_type(item.get_name().lower())
 
             if has_guessed:
-                if media_type is not None:
-                    item.media_type = media_type
-                else:
-                    item.media_type = has_guessed
+                item.media_type = (
+                    media_type if media_type is not None else has_guessed
+                )
             else:
                 item.media_type = "application/octet-stream"
 
