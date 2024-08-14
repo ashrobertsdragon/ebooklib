@@ -947,10 +947,11 @@ class EpubBook(object):
         """
         return (item for item in self.items if item.media_type == media_type)
 
-    def set_template(self, name, value):
+    def set_template(self, name: str, value: bytes) -> None:
         """
-        Defines templates which are used to generate certain types of pages. When defining new value for the template
-        we have to use content of type 'str' (Python 2) or 'bytes' (Python 3).
+        Defines templates which are used to generate certain types of pages.
+        When defining new value for the template
+        we have to use content of type 'bytes'.
 
         At the moment we use these templates:
           - ncx
@@ -965,7 +966,7 @@ class EpubBook(object):
 
         self.templates[name] = value
 
-    def get_template(self, name):
+    def get_template(self, name: str) -> Optional[bytes]:
         """
         Returns value for the template.
 
