@@ -989,7 +989,7 @@ class EpubBook(object):
           - uri: URI for the namespace
         """
 
-        self.prefixes.append("%s: %s" % (name, uri))
+        self.prefixes.append(f"{name}: {uri}")
 
 
 class EpubWriter(object):
