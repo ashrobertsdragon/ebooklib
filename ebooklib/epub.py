@@ -978,14 +978,14 @@ class EpubBook(object):
         """
         return self.templates.get(name)
 
-    def add_prefix(self, name, uri):
+    def add_prefix(self, name: str, uri: str) -> None:
         """
         Appends custom prefix to be added to the content.opf document
 
         >>> epub_book.add_prefix('bkterms', 'http://booktype.org/')
 
         :Args:
-          - name: namespave name
+          - name: namespace name
           - uri: URI for the namespace
         """
 
