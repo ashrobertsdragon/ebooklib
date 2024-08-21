@@ -97,13 +97,13 @@ IMAGE_MEDIA_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/svg+xml"]
 # TOC and navigation elements
 
 
-class Section(object):
+class Section:
     def __init__(self, title: str, href: str = "") -> None:
         self.title = title
         self.href = href
 
 
-class Link(object):
+class Link:
     def __init__(
         self, href: str, title: str, uid: Optional[int] = None
     ) -> None:
@@ -127,7 +127,7 @@ class EpubException(Exception):
 # Items
 
 
-class EpubItem(object):
+class EpubItem:
     """
     Base class for the items in a book.
     """
@@ -631,7 +631,7 @@ class EpubSMIL(EpubItem):
 # EpubBook
 
 
-class EpubBook(object):
+class EpubBook:
     def __init__(self):
         self.EPUB_VERSION: None = None  # This makes no sense
 
@@ -992,7 +992,7 @@ class EpubBook(object):
         self.prefixes.append(f"{name}: {uri}")
 
 
-class EpubWriter(object):
+class EpubWriter:
     DEFAULT_OPTIONS = {
         "epub2_guide": True,
         "epub3_landmark": True,
@@ -1650,7 +1650,7 @@ class EpubWriter(object):
         self.out.close()
 
 
-class EpubReader(object):
+class EpubReader:
     DEFAULT_OPTIONS = {"ignore_ncx": False}
 
     def __init__(self, epub_file_name, options=None):
