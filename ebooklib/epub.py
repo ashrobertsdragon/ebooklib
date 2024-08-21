@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with EbookLib.  If not, see <http://www.gnu.org/licenses/>.
 
+import contextlib
 import zipfile
 import logging
 import uuid
@@ -1016,16 +1017,14 @@ class EpubWriter:
 
         self._init_play_order()
 
-    def _init_play_order(self):
+    def _init_play_order(self) -> None:
         self._play_order = {"enabled": False, "start_from": 1}
 
-        try:
+        with contextlib.suppress(KeyError):
             self._play_order["enabled"] = self.options["play_order"]["enabled"]
             self._play_order["start_from"] = self.options["play_order"][
                 "start_from"
             ]
-        except KeyError:
-            pass
 
     def process(self):
         # should cache this html parsing so we don't do it for every plugin
