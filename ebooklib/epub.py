@@ -1004,7 +1004,9 @@ class EpubWriter:
         "play_order": {"enabled": False, "start_from": 1},
     }
 
-    def __init__(self, name, book, options=None):
+    def __init__(
+        self, name: str, book: EpubBook, options: Optional[dict] = None
+    ):
         self.file_name = name
         self.book = book
 
