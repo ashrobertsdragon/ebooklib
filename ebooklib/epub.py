@@ -1018,7 +1018,7 @@ class EpubWriter:
         self._init_play_order()
 
     def _init_play_order(self) -> None:
-        self._play_order = {"enabled": False, "start_from": 1}
+        self._play_order: dict = {"enabled": False, "start_from": 1}
 
         with contextlib.suppress(KeyError):
             self._play_order["enabled"] = self.options["play_order"]["enabled"]
@@ -1026,7 +1026,7 @@ class EpubWriter:
                 "start_from"
             ]
 
-    def process(self):
+    def process(self) -> None:
         # should cache this html parsing so we don't do it for every plugin
         for plg in self.options.get("plugins", []):
             if hasattr(plg, "before_write"):
@@ -1038,7 +1038,7 @@ class EpubWriter:
                     if hasattr(plg, "html_before_write"):
                         plg.html_before_write(self.book, item)
 
-    def _write_container(self):
+    def _write_container(self) -> None:
         container_xml = CONTAINER_XML % {"folder_name": self.book.FOLDER_NAME}
         self.out.writestr(CONTAINER_PATH, container_xml)
 
