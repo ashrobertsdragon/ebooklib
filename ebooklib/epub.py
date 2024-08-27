@@ -15,6 +15,7 @@
 # along with EbookLib.  If not, see <http://www.gnu.org/licenses/>.
 
 import contextlib
+from datetime import datetime
 import zipfile
 import logging
 import uuid
@@ -1027,7 +1028,7 @@ class EpubWriter:
             ]
 
     def process(self) -> None:
-        # should cache this html parsing so we don't do it for every plugin
+        # TODO: Implement caching
         for plg in self.options.get("plugins", []):
             if hasattr(plg, "before_write"):
                 plg.before_write(self.book)
@@ -1042,7 +1043,7 @@ class EpubWriter:
         container_xml = CONTAINER_XML % {"folder_name": self.book.FOLDER_NAME}
         self.out.writestr(CONTAINER_PATH, container_xml)
 
-    def _write_opf_metadata(self, root):
+    def _write_opf_metadata(self, root) -> None:
         # This is really not needed
         # problem is uppercase/lowercase
         # for ns_name, values in iteritems(self.book.metadata):
@@ -1051,54 +1052,57 @@ class EpubWriter:
         #             if ns_name == ns_url:
         #                 nsmap[n_id.lower()] = NAMESPACES[n_id]
 
-        nsmap = {"dc": NAMESPACES["DC"], "opf": NAMESPACES["OPF"]}
+        nsmap: dict[str, str] = {
+            "dc": NAMESPACES["DC"],
+            "opf": NAMESPACES["OPF"],
+        }
         nsmap.update(self.book.namespaces)
 
-        metadata = etree.SubElement(root, "metadata", nsmap=nsmap)
+        metadata: Element = etree.SubElement(root, "metadata", nsmap=nsmap)
 
-        el = etree.SubElement(
+        el: Element = etree.SubElement(
             metadata, "meta", {"property": "dcterms:modified"}
         )
         if "mtime" in self.options:
-            mtime = self.options["mtime"]
+            mtime: datetime = self.options["mtime"]
         else:
-            import datetime
-
             mtime = datetime.datetime.now()
         el.text = mtime.strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        for ns_name, values in iteritems(self.book.metadata):
+        for ns_name, values in self.book.metadata.items():
             if ns_name == NAMESPACES["OPF"]:
-                for values in values.values():
-                    for v in values:
+                for value in values.values():
+                    for val in value:
                         if (
-                            "property" in v[1]
-                            and v[1]["property"] == "dcterms:modified"
+                            "property" in val[1]
+                            and val[1]["property"] == "dcterms:modified"
                         ):
                             continue
                         try:
-                            el = etree.SubElement(metadata, "meta", v[1])
-                            if v[0]:
-                                el.text = v[0]
+                            el = etree.SubElement(metadata, "meta", val[1])
+                            if val[0]:
+                                el.text = val[0]
                         except ValueError:
                             logging.error("Could not create metadata.")
             else:
-                for name, values in iteritems(values):
-                    for v in values:
+                for name, values in values.items():
+                    for val in values:
                         try:
                             if ns_name:
                                 el = etree.SubElement(
-                                    metadata, "{%s}%s" % (ns_name, name), v[1]
+                                    metadata,
+                                    "{%s}%s" % (ns_name, name),
+                                    val[1],
                                 )
                             else:
                                 el = etree.SubElement(
-                                    metadata, "%s" % name, v[1]
+                                    metadata, f"{name}", val[1]
                                 )
 
-                            el.text = v[0]
+                            el.text = val[0]
                         except ValueError:
                             logging.error(
-                                'Could not create metadata "{}".'.format(name)
+                                f'Could not create metadata "{name}".'
                             )
 
     def _write_opf_manifest(self, root):
