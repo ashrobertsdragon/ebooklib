@@ -1105,9 +1105,9 @@ class EpubWriter:
                                 f'Could not create metadata "{name}".'
                             )
 
-    def _write_opf_manifest(self, root):
-        manifest = etree.SubElement(root, "manifest")
-        _ncx_id = None
+    def _write_opf_manifest(self, root: Element) -> int:
+        manifest: Element = etree.SubElement(root, "manifest")
+        _ncx_id: int = 0
 
         # mathml, scripted, svg, remote-resources, and switch
         # nav
