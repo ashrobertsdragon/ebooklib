@@ -1286,23 +1286,23 @@ class EpubWriter:
         # WRITE FILE
         self._write_opf_file(root)
 
-    def _get_nav(self, item):
+    def _get_nav(self, item: EpubItem) -> bytes:
         # just a basic navigation for now
-        nav_xml = parse_string(self.book.get_template("nav"))
-        root = nav_xml.getroot()
+        nav_xml: ElementTree = parse_string(self.book.get_template("nav"))
+        root: Element = nav_xml.getroot()
 
         root.set("lang", self.book.language)
         root.attrib["{%s}lang" % NAMESPACES["XML"]] = self.book.language
 
-        nav_dir_name = os.path.dirname(item.file_name)
+        nav_dir_name: str = os.path.dirname(item.file_name)
 
-        head = etree.SubElement(root, "head")
-        title = etree.SubElement(head, "title")
+        head: Element = etree.SubElement(root, "head")
+        title: Element = etree.SubElement(head, "title")
         title.text = item.title or self.book.title
 
         # for now this just handles css files and ignores others
         for _link in item.links:
-            _lnk = etree.SubElement(
+            etree.SubElement(
                 head,
                 "link",
                 {
@@ -1312,10 +1312,10 @@ class EpubWriter:
                 },
             )
 
-        body = etree.SubElement(root, "body")
+        body: Element = etree.SubElement(root, "body")
         if item.direction:
             body.set("dir", item.direction)
-        nav = etree.SubElement(
+        nav: Element = etree.SubElement(
             body,
             "nav",
             {
@@ -1325,16 +1325,16 @@ class EpubWriter:
             },
         )
 
-        content_title = etree.SubElement(nav, "h2")
+        content_title: Element = etree.SubElement(nav, "h2")
         content_title.text = item.title or self.book.title
 
         def _create_section(itm, items):
-            ol = etree.SubElement(itm, "ol")
+            ol: Element = etree.SubElement(itm, "ol")
             for item in items:
-                if isinstance(item, tuple) or isinstance(item, list):
-                    li = etree.SubElement(ol, "li")
+                if isinstance(item, (tuple, list)):
+                    li: Element = etree.SubElement(ol, "li")
                     if isinstance(item[0], EpubHtml):
-                        a = etree.SubElement(
+                        a: Element = etree.SubElement(
                             li,
                             "a",
                             {
@@ -1402,31 +1402,30 @@ class EpubWriter:
                 "text": "bodymatter",
             }
 
-            guide_nav = etree.SubElement(
+            guide_nav: Element = etree.SubElement(
                 body, "nav", {"{%s}type" % NAMESPACES["EPUB"]: "landmarks"}
             )
 
-            guide_content_title = etree.SubElement(guide_nav, "h2")
+            guide_content_title: Element = etree.SubElement(guide_nav, "h2")
             guide_content_title.text = self.options.get(
                 "landmark_title", "Guide"
             )
 
-            guild_ol = etree.SubElement(guide_nav, "ol")
+            guild_ol: Element = etree.SubElement(guide_nav, "ol")
 
             for elem in self.book.guide:
                 li_item = etree.SubElement(guild_ol, "li")
 
                 if "item" in elem:
-                    chap = elem.get("item", None)
-                    if chap:
-                        _href = chap.file_name
-                        _title = chap.title
+                    if chapter := elem.get("item", None):
+                        _href = chapter.file_name
+                        _title = chapter.title
                 else:
                     _href = elem.get("href", "")
                     _title = elem.get("title", "")
 
                 guide_type = elem.get("type", "")
-                a_item = etree.SubElement(
+                a_item: Element = etree.SubElement(
                     li_item,
                     "a",
                     {
@@ -1441,14 +1440,14 @@ class EpubWriter:
 
         # PAGE-LIST
         if self.options.get("epub3_pages"):
-            inserted_pages = get_pages_for_items([
+            inserted_pages: List[EpubHtml] = get_pages_for_items([
                 item
                 for item in self.book.get_items_of_type(ebooklib.ITEM_DOCUMENT)
                 if not isinstance(item, EpubNav)
             ])
 
-            if len(inserted_pages) > 0:
-                pagelist_nav = etree.SubElement(
+            if inserted_pages:
+                pagelist_nav: Element = etree.SubElement(
                     body,
                     "nav",
                     {
@@ -1457,20 +1456,22 @@ class EpubWriter:
                         "hidden": "hidden",
                     },
                 )
-                pagelist_content_title = etree.SubElement(pagelist_nav, "h2")
+                pagelist_content_title: Element = etree.SubElement(
+                    pagelist_nav, "h2"
+                )
                 pagelist_content_title.text = self.options.get(
                     "pages_title", "Pages"
                 )
 
-                pages_ol = etree.SubElement(pagelist_nav, "ol")
+                pages_ol: Element = etree.SubElement(pagelist_nav, "ol")
 
                 for filename, pageref, label in inserted_pages:
-                    li_item = etree.SubElement(pages_ol, "li")
+                    li_item: Element = etree.SubElement(pages_ol, "li")
 
-                    _href = "{}#{}".format(filename, pageref)
-                    _title = label
+                    _href: str = "{}#{}".format(filename, pageref)
+                    _title: str = label
 
-                    a_item = etree.SubElement(
+                    a_item: Element = etree.SubElement(
                         li_item,
                         "a",
                         {
@@ -1479,11 +1480,9 @@ class EpubWriter:
                     )
                     a_item.text = _title
 
-        tree_str = etree.tostring(
+        return etree.tostring(
             nav_xml, pretty_print=True, encoding="utf-8", xml_declaration=True
         )
-
-        return tree_str
 
     def _get_ncx(self):
         # we should be able to setup language for NCX as also
