@@ -1152,39 +1152,39 @@ class EpubWriter:
                     },
                 )
             else:
-                opts = {
+                options = {
                     "href": item.file_name,
                     "id": item.id,
                     "media-type": item.media_type,
                 }
 
                 if hasattr(item, "properties") and len(item.properties) > 0:
-                    opts["properties"] = " ".join(item.properties)
+                    options["properties"] = " ".join(item.properties)
 
                 if (
                     hasattr(item, "media_overlay")
                     and item.media_overlay is not None
                 ):
-                    opts["media-overlay"] = item.media_overlay
+                    options["media-overlay"] = item.media_overlay
 
                 if (
                     hasattr(item, "media_duration")
                     and item.media_duration is not None
                 ):
-                    opts["duration"] = item.media_duration
+                    options["duration"] = item.media_duration
 
-                etree.SubElement(manifest, "item", opts)
+                etree.SubElement(manifest, "item", options)
 
         return _ncx_id
 
-    def _write_opf_spine(self, root, ncx_id):
+    def _write_opf_spine(self, root: Element, ncx_id: int) -> None:
         spine_attributes = {"toc": ncx_id or "ncx"}
         if self.book.direction and self.options["spine_direction"]:
             spine_attributes["page-progression-direction"] = (
                 self.book.direction
             )
 
-        spine = etree.SubElement(root, "spine", spine_attributes)
+        spine: Element = etree.SubElement(root, "spine", spine_attributes)
 
         for _item in self.book.spine:
             # this is for now
@@ -1195,34 +1195,24 @@ class EpubWriter:
             if isinstance(_item, tuple):
                 item = _item[0]
 
-                if len(_item) > 1:
-                    if _item[1] == "no":
-                        is_linear = False
+                if len(_item) > 1 and _item[1] == "no":
+                    is_linear = False
             else:
                 item = _item
 
-            if isinstance(item, EpubHtml):
-                opts = {"idref": item.get_id()}
+            if isinstance(item, (EpubHtml, EpubItem)):
+                options = {"idref": item.get_id()}
 
                 if not item.is_linear or not is_linear:
-                    opts["linear"] = "no"
-            elif isinstance(item, EpubItem):
-                opts = {"idref": item.get_id()}
-
-                if not item.is_linear or not is_linear:
-                    opts["linear"] = "no"
+                    options["linear"] = "no"
             else:
-                opts = {"idref": item}
+                options = {"idref": item}
 
-                try:
-                    itm = self.book.get_item_with_id(item)
+                if epub_item := self.book.get_item_with_id(item):
+                    if not epub_item.is_linear or not is_linear:
+                        options["linear"] = "no"
 
-                    if not itm.is_linear or not is_linear:
-                        opts["linear"] = "no"
-                except:
-                    pass
-
-            etree.SubElement(spine, "itemref", opts)
+            etree.SubElement(spine, "itemref", options)
 
     def _write_opf_guide(self, root):
         # - http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.6
