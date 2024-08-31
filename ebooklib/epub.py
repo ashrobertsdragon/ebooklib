@@ -1239,21 +1239,21 @@ class EpubWriter:
                 },
             )
 
-    def _write_opf_bindings(self, root):
+    def _write_opf_bindings(self, root: Element) -> None:
         if len(self.book.bindings) > 0:
-            bindings = etree.SubElement(root, "bindings", {})
+            bindings: Element = etree.SubElement(root, "bindings", {})
             for item in self.book.bindings:
                 etree.SubElement(bindings, "mediaType", item)
 
-    def _write_opf_file(self, root):
-        tree_str = etree.tostring(
+    def _write_opf_file(self, root: Element) -> None:
+        tree_str: bytes = etree.tostring(
             root, pretty_print=True, encoding="utf-8", xml_declaration=True
         )
 
-        self.out.writestr("%s/content.opf" % self.book.FOLDER_NAME, tree_str)
+        self.out.writestr(f"{self.book.FOLDER_NAME}/content.opf", tree_str)
 
-    def _write_opf(self):
-        package_attributes = {
+    def _write_opf(self) -> None:
+        package_attributes: dict[str, str] = {
             "xmlns": NAMESPACES["OPF"],
             "unique-identifier": self.book.IDENTIFIER_ID,
             "version": "3.0",
@@ -1261,9 +1261,9 @@ class EpubWriter:
         if self.book.direction and self.options["package_direction"]:
             package_attributes["dir"] = self.book.direction
 
-        root = etree.Element("package", package_attributes)
+        root: Element = etree.Element("package", package_attributes)
 
-        prefixes = [
+        prefixes: List[str] = [
             "rendition: http://www.idpf.org/vocab/rendition/#"
         ] + self.book.prefixes
         root.attrib["prefix"] = " ".join(prefixes)
@@ -1272,7 +1272,7 @@ class EpubWriter:
         self._write_opf_metadata(root)
 
         # MANIFEST
-        _ncx_id = self._write_opf_manifest(root)
+        _ncx_id: int = self._write_opf_manifest(root)
 
         # SPINE
         self._write_opf_spine(root, _ncx_id)
