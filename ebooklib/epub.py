@@ -1214,33 +1214,30 @@ class EpubWriter:
 
             etree.SubElement(spine, "itemref", options)
 
-    def _write_opf_guide(self, root):
+    def _write_opf_guide(self, root: Element) -> None:
         # - http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.6
 
-        if len(self.book.guide) > 0 and self.options.get("epub2_guide"):
-            guide = etree.SubElement(root, "guide", {})
+        if len(self.book.guide) <= 0 or not self.options.get("epub2_guide"):
+            return
+        guide: Element = etree.SubElement(root, "guide", {})
 
-            for item in self.book.guide:
-                if "item" in item:
-                    chap = item.get("item")
-                    if chap:
-                        _href = chap.file_name
-                        _title = chap.title
-                else:
-                    _href = item.get("href", "")
-                    _title = item.get("title", "")
+        for item in self.book.guide:
+            if chapter := item.get("item"):
+                _href = chapter.file_name
+                _title = chapter.title
+            else:
+                _href = item.get("href", "")
+                _title = item.get("title", "") or ""
 
-                if _title is None:
-                    _title = ""
-                ref = etree.SubElement(
-                    guide,
-                    "reference",
-                    {
-                        "type": item.get("type", ""),
-                        "title": _title,
-                        "href": _href,
-                    },
-                )
+            etree.SubElement(
+                guide,
+                "reference",
+                {
+                    "type": item.get("type", ""),
+                    "title": _title,
+                    "href": _href,
+                },
+            )
 
     def _write_opf_bindings(self, root):
         if len(self.book.bindings) > 0:
