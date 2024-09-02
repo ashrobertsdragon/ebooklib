@@ -16,6 +16,7 @@
 
 import contextlib
 from datetime import datetime
+from telnetlib import EL
 import zipfile
 import logging
 import uuid
@@ -1484,29 +1485,29 @@ class EpubWriter:
             nav_xml, pretty_print=True, encoding="utf-8", xml_declaration=True
         )
 
-    def _get_ncx(self):
+    def _get_ncx(self) -> bytes:
         # we should be able to setup language for NCX as also
-        ncx = parse_string(self.book.get_template("ncx"))
-        root = ncx.getroot()
+        ncx: Element = parse_string(self.book.get_template("ncx"))
+        root: Element = ncx.getroot()
 
-        head = etree.SubElement(root, "head")
+        head: Element = etree.SubElement(root, "head")
 
         # get this id
-        uid = etree.SubElement(
+        uid: Element = etree.SubElement(
             head, "meta", {"content": self.book.uid, "name": "dtb:uid"}
         )
-        uid = etree.SubElement(
+        uid: Element = etree.SubElement(
             head, "meta", {"content": "0", "name": "dtb:depth"}
         )
-        uid = etree.SubElement(
+        uid: Element = etree.SubElement(
             head, "meta", {"content": "0", "name": "dtb:totalPageCount"}
         )
-        uid = etree.SubElement(
+        uid: Element = etree.SubElement(
             head, "meta", {"content": "0", "name": "dtb:maxPageNumber"}
         )
 
-        doc_title = etree.SubElement(root, "docTitle")
-        title = etree.SubElement(doc_title, "text")
+        doc_title: Element = etree.SubElement(root, "docTitle")
+        title: Element = etree.SubElement(doc_title, "text")
         title.text = self.book.title
 
         #        doc_author = etree.SubElement(root, 'docAuthor')
@@ -1514,15 +1515,15 @@ class EpubWriter:
         #        author.text = 'Name of the person'
 
         # For now just make a very simple navMap
-        nav_map = etree.SubElement(root, "navMap")
+        nav_map: Element = etree.SubElement(root, "navMap")
 
-        def _add_play_order(nav_point):
+        def _add_play_order(nav_point: Element) -> None:
             nav_point.set("playOrder", str(self._play_order["start_from"]))
             self._play_order["start_from"] += 1
 
-        def _create_section(itm, items, uid):
+        def _create_section(itm: Element, items: list, uid: Element) -> Element:
             for item in items:
-                if isinstance(item, tuple) or isinstance(item, list):
+                if isinstance(item, (tuple, list)):
                     section, subsection = item[0], item[1]
 
                     np = etree.SubElement(
@@ -1551,35 +1552,34 @@ class EpubWriter:
                     elif isinstance(section, Link):
                         href = section.href
 
-                    nc = etree.SubElement(np, "content", {"src": href})
+                    nc: Element = etree.SubElement(
+                        np, "content", {"src": href}
+                    )
 
                     uid = _create_section(np, subsection, uid + 1)
                 elif isinstance(item, Link):
                     _parent = itm
                     _content = _parent.find("content")
 
-                    if _content is not None:
-                        if _content.get("src") == "":
-                            _content.set("src", item.href)
+                    if _content is not None and _content.get("src") == "":
+                        _content.set("src", item.href)
 
-                    np = etree.SubElement(itm, "navPoint", {"id": item.uid})
+                    np: Element = etree.SubElement(itm, "navPoint", {"id": item.uid})
 
                     if self._play_order["enabled"]:
                         _add_play_order(np)
 
-                    nl = etree.SubElement(np, "navLabel")
-                    nt = etree.SubElement(nl, "text")
+                    nl: Element = etree.SubElement(np, "navLabel")
+                    nt:Element = etree.SubElement(nl, "text")
                     nt.text = item.title
 
-                    nc = etree.SubElement(np, "content", {"src": item.href})
+                    nc: Element = etree.SubElement(np, "content", {"src": item.href})
                 elif isinstance(item, EpubHtml):
-                    _parent = itm
+                    _parent: Element = itm
                     _content = _parent.find("content")
 
-                    if _content is not None:
-                        if _content.get("src") == "":
-                            _content.set("src", item.file_name)
-
+                    if _content is not None and _content.get("src") == "":
+                        _content.set("src", item.file_name)
                     np = etree.SubElement(
                         itm, "navPoint", {"id": item.get_id()}
                     )
@@ -1591,7 +1591,7 @@ class EpubWriter:
                     nt = etree.SubElement(nl, "text")
                     nt.text = item.title
 
-                    nc = etree.SubElement(
+                    nc: Element = etree.SubElement(
                         np, "content", {"src": item.file_name}
                     )
 
@@ -1599,11 +1599,10 @@ class EpubWriter:
 
         _create_section(nav_map, self.book.toc, 0)
 
-        tree_str = etree.tostring(
+        return = etree.tostring(
             root, pretty_print=True, encoding="utf-8", xml_declaration=True
         )
 
-        return tree_str
 
     def _write_items(self):
         for item in self.book.get_items():
