@@ -1604,7 +1604,7 @@ class EpubWriter:
         )
 
 
-    def _write_items(self):
+    def _write_items(self) -> None:
         for item in self.book.get_items():
             if isinstance(item, EpubNcx):
                 self.out.writestr(
@@ -1622,7 +1622,7 @@ class EpubWriter:
                     item.get_content(),
                 )
             else:
-                self.out.writestr("%s" % item.file_name, item.get_content())
+                self.out.writestr(f"{item.file_name}", item.get_content())
 
     def write(self):
         # check for the option allowZip64
