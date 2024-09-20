@@ -16,7 +16,6 @@
 
 import contextlib
 from datetime import datetime
-from telnetlib import EL
 import zipfile
 import logging
 import uuid
@@ -24,7 +23,7 @@ import warnings
 import posixpath as zip_path
 import os.path
 from collections import OrderedDict
-from typing import Generator, Iterator, List, Literal, Optional
+from typing import Generator, Iterator, Dict, List, Literal, Optional
 
 from lxml.etree import ParserError
 from lxml.etree import _ElementTree as ElementTree
@@ -1639,13 +1638,13 @@ class EpubWriter:
 class EpubReader:
     DEFAULT_OPTIONS = {"ignore_ncx": False}
 
-    def __init__(self, epub_file_name, options=None):
+    def __init__(self, epub_file_name: str, options: Optional[Dict[str, bool]]= None) -> None:
         self.file_name = epub_file_name
-        self.book = EpubBook()
-        self.zf = None
+        self.book: EpubBook = EpubBook()
+        self.zf: Optional[zipfile.ZipFile] = None
 
-        self.opf_file = ""
-        self.opf_dir = ""
+        self.opf_file: str = ""
+        self.opf_dir: str = ""
 
         self.options = dict(self.DEFAULT_OPTIONS)
         if options:
@@ -2019,8 +2018,8 @@ class EpubReader:
             file_name = self.file_name
 
             class Directory:
-                def read(self, subname):
-                    with open(os.path.join(file_name, subname), "rb") as fp:
+                def read(self, sub_name):
+                    with open(os.path.join(file_name, sub_name), "rb") as fp:
                         return fp.read()
 
                 def close(self):
