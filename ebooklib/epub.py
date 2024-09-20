@@ -1607,24 +1607,20 @@ class EpubWriter:
     def _write_items(self) -> None:
         for item in self.book.get_items():
             if isinstance(item, EpubNcx):
-                self.out.writestr(
-                    "%s/%s" % (self.book.FOLDER_NAME, item.file_name),
-                    self._get_ncx(),
-                )
+                self.out.writestr(f"{self.book.FOLDER_NAME}/{item.file_name}", self._get_ncx())
             elif isinstance(item, EpubNav):
                 self.out.writestr(
-                    "%s/%s" % (self.book.FOLDER_NAME, item.file_name),
+                    f"{self.book.FOLDER_NAME}/{item.file_name}",
                     self._get_nav(item),
                 )
             elif item.manifest:
                 self.out.writestr(
-                    "%s/%s" % (self.book.FOLDER_NAME, item.file_name),
-                    item.get_content(),
+                    f"{self.book.FOLDER_NAME}/{item.file_name}", item.get_content()
                 )
             else:
                 self.out.writestr(f"{item.file_name}", item.get_content())
 
-    def write(self):
+    def write(self) -> None:
         # check for the option allowZip64
         self.out = zipfile.ZipFile(self.file_name, "w", zipfile.ZIP_DEFLATED)
         self.out.writestr(
